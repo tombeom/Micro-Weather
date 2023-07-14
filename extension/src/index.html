@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Micro-Weather</title>
+    <!-- Custom CSS, Font -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet" />
+    <link href="/dist/output.css" rel="stylesheet" />
+    <!-- // Custom CSS, Font -->
+  </head>
+  <body class="w-[800px] h-[400px] font-['IBM_Plex_Sans_KR'] text-white bg-[#1f242e]" id="popup">
+    <h1 class="sr-only">Micro-Weather</h1>
+    <main>
+      <!-- Display Nowcast Weather Icon, Temperature -->
+      <section>
+        <h2 class="sr-only">현재 온도</h2>
+        <article class="flex justify-center items-center mt-5 mb-5 gap-4">
+          <img class="w-24" src="images/loading.png" alt="불러오는 중" id="ncstImg" /> <!-- Weather Image -->
+          <h3 class="text-7xl font-bold" id="ncstTemp">-°</h3> <!-- Temperature -->
+        </article>
+      </section>
+      <!-- // Display Nowcast Weather Icon, Temperature -->
+      <!-- Display Location, Precipitation, Humidity -->
+      <section>
+        <h2 class="sr-only">현재 지역과 강수량, 습도</h2>
+        <article class="flex justify-center gap-4">
+          <h3 class="text-xl font-bold" id="location">-</h3> <!-- Location -->
+          <div class="text-lg ml-4">
+            <div class="flex mb-3">
+              <img class="w-7 mr-2" src="images/loading.png" alt="불러오는 중" id="ncstPrecipitationImg"/> <!-- Precipitation Image -->
+              <h3 id="ncstPrecipitation">강수량 - mm</h3> <!-- Precipitation -->
+            </div>
+            <div class="flex">
+              <img class="w-7 mr-2" src="images/humidity.png" alt="습도" /> <!-- Humidity Image -->
+              <h3 id="ncstHumidity">습도 -%</h3> <!-- Humidity -->
+            </div>
+          </div>
+        </article>
+      </section>
+      <!-- // Display Location, Precipitation, Humidity -->
+      <!-- Display Particulate Matter Pollution Information -->
+      <section>
+        <h2 class="sr-only">현재 미세먼지 정보</h2>
+        <article class="flex justify-center items-center mt-5">
+          <h3 class="pr-6 text-lg" id="station">-</h3> <!-- PM Station -->
+          <h2 class="p-2 mr-2 border-2 rounded-full font-bold" id="pm25">-</h2>
+          <div>
+            <h3>초미세먼지</h3>
+            <h3 class="font-bold" id="pm25Grade">-</h3> <!-- PM-2.5 -->
+          </div>
+          <h2 class="p-2 ml-10 mr-2 border-2 rounded-full font-bold" id="pm10">-</h2>
+          <div>
+            <h3>미세먼지</h3>
+            <h3 class="font-bold" id="pm10Grade">-</h3> <!-- PM-10 -->
+          </div>
+        </article>
+      </section>
+      <!-- // Display Particulate Matter Pollution Information -->
+    </main>
+    <!-- Display Forecast Weather Data -->
+    <section>
+      <h2 class="sr-only">예보시점부터 6시간까지의 예보</h2>
+      <div class="border-t-2 mt-10 mx-16"></div> <!-- Break Line -->
+      <ol class="grid grid-cols-6 justify-center mt-2 p-6" id="fcstData">
+      </ol>
+    </section>
+    <!-- // Display Forecast Weather Data -->
+    <!-- Loading Screen -->
+    <section class="w-[800px] h-[420px] fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="loadingScreen">
+      <div class="grid justify-items-center mt-32">
+        <h2 class="text-7xl animate-[bounce_3s_infinite]">🌞</h2>
+        <h3 class="mt-4 text-4xl animate-pulse">날씨를 기다리고 있어요💦</h3>
+      </div>
+    </section>
+    <!-- // Loading Screen -->
+    <!-- Failure Screen -->
+    <section class="hidden w-[800px] h-[420px] fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="failureScreen">
+      <div class="grid justify-items-center mt-28">
+        <h3 class="mt-4 text-4xl">날씨를 불러오는데 실패했어요😥</h3>
+        <p class="mt-20 text-xl" id="failureMsg1"></p>
+        <p class="mt-4 text-xl" id="failureMsg2"></p>
+      </div>
+    </section>
+    <!-- // Failure Screen -->
+    <!-- Load JS Files -->
+    <script src="scripts/draw.js"></script>
+    <script src="scripts/init.js"></script>
+    <!-- // Load JS Files -->
+  </body>
+</html>
