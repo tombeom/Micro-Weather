@@ -14,6 +14,7 @@ async def getResponseData(latitude, longitude):
         latitude (str) : 위도
         longitude (str) : 경도
     """
+    # 사용자의 위도, 경도가 대한민국(한반도) 내에 위치할 경우에만 return JSON else return False
     logger = setLogger("server", "serverMSG")
     if(checkCoord(latitude, longitude)):
         startTime = time.perf_counter()
