@@ -33,7 +33,7 @@ def setLogger (type, logName):
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(datefmt="%Y/%m/%d %H:%M:%S", fmt='%(asctime)s - [%(levelname)s | %(name)s | %(filename)s:%(lineno)s] > %(message)s')
 
-    handler = TimedRotatingFileHandler(filename=logDir + logFileName, when='midnight', interval=1, encoding="utf-8")
+    handler = TimedRotatingFileHandler(filename=logDir + logFileName, when='midnight', interval=1, backupCount=7, encoding="utf-8")
     handler.setFormatter(formatter)
 
     logger.addHandler(handler)
