@@ -31,8 +31,7 @@ Micro-Weather는 크롬 확장 프로그램으로 브라우저에서 팝업 형�
 
 ### 배포 URL
 
-- 현재 검토 중 
-  - chrome 웹 스토어를 통해 배포
+- [chrome 웹 스토어](https://chrome.google.com/webstore/detail/micro-weather/mkkjhfmhfoniidbdfdndgpegdglfpkbh?hl=ko&authuser=0)
 
 ## 기타
 
