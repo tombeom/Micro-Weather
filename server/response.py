@@ -1,6 +1,3 @@
-import json
-import time
-import asyncio
 from apps.location import *
 from apps.particulateMatter import *
 from apps.sunRiseSet import *
@@ -17,13 +14,7 @@ async def getResponseData(latitude, longitude):
     if(checkCoord(latitude, longitude)):
         gridCoord = convertCoordToGrid(latitude, longitude)
         tmCoord = convertCoordToTM(latitude, longitude)
-
-        # address = AddressModel(**await convertCoordToAddress(latitude, longitude))
-        # sunRiseSetData = SunRiseSetDataModel(**await getSunRiseSet(latitude, longitude))
-        # nowcast = NowcastModel(**await getNowcast(gridCoord["gridX"], gridCoord["gridY"]))
-        # forecast = ForecastModel(**await getForecast(gridCoord["gridX"], gridCoord["gridY"]))
-        # pmData = PmDataModel(**await getPMData(await getStationInfo(tmCoord["x"], tmCoord["y"])))
-
+        
         responseData = {}
         responseData["address"] = await convertCoordToAddress(latitude, longitude)
         responseData["sunRiseSetData"] = await getSunRiseSet(latitude, longitude)
@@ -31,7 +22,6 @@ async def getResponseData(latitude, longitude):
         responseData["forecast"] = await getForecast(gridCoord["gridX"], gridCoord["gridY"])
         responseData["pmData"] = await getPMData(await getStationInfo(tmCoord["x"], tmCoord["y"]))
         
-        #responseJson = json.dumps(responseData, indent=4, ensure_ascii=False)
         return responseData
     else:
         return False
