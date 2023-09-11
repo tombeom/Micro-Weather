@@ -1,5 +1,7 @@
-import os
-from apps.utils import *
+import requests
+from apps.keys import openAPIKey
+from apps.logger import setLogger
+from apps.getDateTime import *
 
 async def getNowcast(gridX, gridY):
     """
@@ -10,7 +12,7 @@ async def getNowcast(gridX, gridY):
     """
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
     params = {
-        "serviceKey" : os.getenv("openAPIKey"),
+        "serviceKey" : openAPIKey,
         "numOfRows" : "30",
         "pageNo" : "1",
         "dataType" : "JSON",
@@ -20,9 +22,11 @@ async def getNowcast(gridX, gridY):
         "ny" : gridY
         }
     try: # API 호출 시도 (GET Request)
-        response = await fetch(url, params=params)
+        response = requests.get(url, params=params, verify=False).json()
     except Exception as e: # API 호출 실패
-        print(e)
+        logger = setLogger("api", "getNowcastError")
+        logger.error("getNowcast API 호출 오류")
+        logger.error(e)
         return "ERROR"
     else: # API 호출 성공
         try: # API 호출 성공 후 데이터 처리
@@ -38,7 +42,9 @@ async def getNowcast(gridX, gridY):
                 return ncstData
             else: raise Exception(f'getNowcast() 비정상 응답 코드 : {response["response"]["header"]["resultCode"]}') # API 응답코드가 비정상일 경우 에러 발생
         except Exception as e: # API 데이터 처리 실패
-            print(e)
+            logger = setLogger("api", "getNowcastError")
+            logger.error("getNowcast API 처리 오류")
+            logger.error(e)
             return "ERROR"
 
 async def getForecast(gridX, gridY):
@@ -50,7 +56,7 @@ async def getForecast(gridX, gridY):
     """
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst"
     params = {
-        "serviceKey" : os.getenv("openAPIKey"),
+        "serviceKey" : openAPIKey,
         "numOfRows" : "30",
         "pageNo" : "1",
         "dataType" : "JSON",
@@ -61,9 +67,11 @@ async def getForecast(gridX, gridY):
         }
     
     try: # API 호출 시도 (GET Request)
-        response = await fetch(url, params=params)
+        response = requests.get(url, params=params, verify=False).json()
     except Exception as e: # API 호출 실패
-        print(e)
+        logger = setLogger("api", "getForecastError")
+        logger.error("getForecast API 호출 오류")
+        logger.error(e)
         return "ERROR"
     else: # API 호출 성공
         try: # API 호출 성공 후 데이터 처리
@@ -91,6 +99,8 @@ async def getForecast(gridX, gridY):
                 return fcstData
             else: raise Exception(f'getForecast() 비정상 응답 코드 : {response["response"]["header"]["resultCode"]}') # API 응답코드가 비정상일 경우 에러 발생
         except Exception as e: # API 데이터 처리 실패
-            print(e)
+            logger = setLogger("api", "getForecastError")
+            logger.error("getForecast API 처리 오류")
+            logger.error(e)
             return "ERROR"
     

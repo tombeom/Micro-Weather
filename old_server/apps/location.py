@@ -1,7 +1,6 @@
-import math
 import requests
-import os
-from apps.utils import fetch
+import math
+from apps.keys import kakaoAPIKey
 
 def checkCoord(latitude, longitude):
     """
@@ -15,7 +14,7 @@ def checkCoord(latitude, longitude):
     FARNORTH = 38.45000000
     FARSOUTH = 33.10000000
 
-    if (float(latitude) < FARSOUTH or float(latitude) > FARNORTH) or (float(longitude) < FARWEST and float(longitude) > FAREAST):
+    if (latitude < FARSOUTH or latitude > FARNORTH) or (longitude < FARWEST and longitude > FAREAST):
         return False
     else: return True
 
@@ -33,9 +32,9 @@ async def convertCoordToAddress(latitude, longitude):
         "lon" : longitude,
         "zoom": "18"
     }
-    response = await fetch(url, params = params)
+    response = requests.get(url, params = params).json()
 
-    return response["address"]
+    return(response["address"])
 
 def convertCoordToTM(latitude, longitude):
     """
@@ -51,11 +50,10 @@ def convertCoordToTM(latitude, longitude):
     "output_coord": "TM",
     }
     headers = {
-        "Authorization": "KakaoAK " + os.getenv("kakaoAPIKey")
+        "Authorization": "KakaoAK " + kakaoAPIKey
     }
 
     response = requests.get(url, params = params, headers = headers).json()
-
     return response["documents"][0]
 
 def convertCoordToGrid(latitude, longitude):
@@ -89,9 +87,9 @@ def convertCoordToGrid(latitude, longitude):
     ro = math.tan(math.pi * 0.25 + olat * 0.5)
     ro = (re * sf) / math.pow(ro, sn)
 
-    ra = math.tan(math.pi * 0.25 + float(latitude) * oneDegree * 0.5)
+    ra = math.tan(math.pi * 0.25 + latitude * oneDegree * 0.5)
     ra = (re * sf) / math.pow(ra, sn)
-    theta = float(longitude) * oneDegree - olon
+    theta = longitude * oneDegree - olon
     if (theta > math.pi): theta -= 2.0 * math.pi
     if (theta < -math.pi): theta += 2.0 * math.pi
     theta *= sn

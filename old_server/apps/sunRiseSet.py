@@ -1,7 +1,9 @@
-import os
+import requests
 import xml.etree.ElementTree as ET
-from apps.utils import *
 from datetime import datetime
+from apps.keys import openAPIKey
+from apps.getDateTime import getDate,getTime
+from apps.logger import setLogger
 
 async def getSunRiseSet(latitude, longitude):
     """
@@ -12,7 +14,7 @@ async def getSunRiseSet(latitude, longitude):
     """
     url = "http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getLCRiseSetInfo"
     params = {
-        "serviceKey" : os.getenv("openAPIKey"),
+        "serviceKey" : openAPIKey,
         "locdate" : getDate(),
         "latitude" : latitude,
         "longitude" : longitude,
@@ -20,14 +22,15 @@ async def getSunRiseSet(latitude, longitude):
     }
 
     try: # API 호출 시도 (GET Request)
-        async with ClientSession() as session:
-            async with session.get(url, params=params) as response:
-                response = (await response.text())
-                root = ET.fromstring(response)
+        response = requests.get(url, params = params)
     except Exception as e: # API 호출 실패
+        logger = setLogger("api", "getSunRiseSetError")
+        logger.error("getSunRiseSet API 호출 오류")
+        logger.error(e)
         return "ERROR"
     else: # API 호출 성공
         try: # API 호출 성공 후 데이터 처리
+            root = ET.fromstring(response.content)
             if root[0][0].text == "00": # API 응답코드 확인
                 sunriseText = (datetime.today().strftime("%Y%m%d")) + (root[1][0][0][15].text.strip())
                 sunsetText = (datetime.today().strftime("%Y%m%d")) + (root[1][0][0][16].text.strip())
@@ -43,4 +46,7 @@ async def getSunRiseSet(latitude, longitude):
                     return {"sunRiseSetData": "sunset"}
             else: raise Exception(f'getSunRiseSet() 비정상 응답 코드 : {root[0][0].text}') # API 응답코드가 비정상일 경우 에러 발생
         except Exception as e: # API 데이터 처리 실패
+            logger = setLogger("api", "getSunRiseSetError")
+            logger.error("getSunRiseSet API 처리 오류")
+            logger.error(e)
             return "ERROR"

@@ -1,5 +1,6 @@
-import os
-from apps.utils import fetch
+import requests
+from apps.keys import openAPIKey
+from apps.logger import setLogger
 
 async def getStationInfo(tmX, tmY):
     """
@@ -10,7 +11,7 @@ async def getStationInfo(tmX, tmY):
     """
     url = "http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList"
     params = {
-        "serviceKey" : os.getenv("openAPIKey"),
+        "serviceKey" : openAPIKey,
         "returnType" : "json",
         "tmX" : tmX,
         "tmY" : tmY,
@@ -18,8 +19,11 @@ async def getStationInfo(tmX, tmY):
     }
     
     try: # API 호출 시도 (GET Request)
-        response = await fetch(url, params=params)
+        response = requests.get(url, params=params).json()
     except Exception as e: # API 호출 실패
+        logger = setLogger("api", "getStationInfoError")
+        logger.error("getStationInfo API 호출 오류")
+        logger.error(e)
         return "ERROR"
     else: # API 호출 성공
         try: # API 호출 성공 후 데이터 처리
@@ -33,6 +37,9 @@ async def getStationInfo(tmX, tmY):
                 return stationList
             else: raise Exception(f'getStationInfo() 비정상 응답 코드 : {response["response"]["header"]["resultCode"]}') # API 응답코드가 비정상일 경우 에러 발생
         except Exception as e: # API 데이터 처리 실패
+            logger = setLogger("api", "getStationInfoError")
+            logger.error("getStationInfo API 처리 오류")
+            logger.error(e)
             return "ERROR"
 
 async def getPMData(stationList):
@@ -43,7 +50,7 @@ async def getPMData(stationList):
     """
     url = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
     params = {
-        "serviceKey": os.getenv("openAPIKey"),
+        "serviceKey": openAPIKey,
         "returnType": "json",
         "stationName": stationList[0],
         "dataTerm": "DAILY",
@@ -51,8 +58,11 @@ async def getPMData(stationList):
         }
     
     try: # API 호출 시도 (GET Request)
-        response = await fetch(url, params=params)
+        response = requests.get(url, params=params).json()
     except Exception as e: # API 호출 실패
+        logger = setLogger("api", "getPMDataError")
+        logger.error("getPMData API 호출 오류")
+        logger.error(e)
         return "ERROR"
     else: # API 호출 성공
         try: # API 호출 성공 후 데이터 처리
@@ -66,10 +76,17 @@ async def getPMData(stationList):
                 return particulateMatterData
             else: raise Exception(f'getPMData() 비정상 응답 코드 : {response["response"]["header"]["resultCode"]}')  # API 응답코드가 비정상일 경우 에러 발생
         except Exception as e:  # API 데이터 처리 실패 시 다음 측정소로 API 재호출 시도
+            logger = setLogger("api", "getPMDataError")
+            logger.error("getPMData API 처리 오류 발생")
+            logger.error(e)
+            logger.info("다음 측정소로 재호출 시도")
             params["stationName"] = stationList[1]
             try: # 다음 측정소로 API 재호출 시도 (GET Request)
-                response = await fetch(url, params=params)
+                response = requests.get(url, params=params).json()
             except Exception as e: # API 재호출 실패
+                logger = setLogger("api", "getPMDataError")
+                logger.error("getPMData API 처리 오류 이후 재호출 실패")
+                logger.error(e)
                 return "ERROR"
             else: # API 재호출 성공
                 try: # API 재호출 성공 후 데이터 처리
@@ -83,4 +100,7 @@ async def getPMData(stationList):
                         return particulateMatterData
                     else: raise Exception(f'getPMData() 비정상 응답 코드 : {response["response"]["header"]["resultCode"]}')  # API 응답코드가 비정상일 경우 에러 발생
                 except Exception as e: # API 데이터 처리 실패
+                    logger = setLogger("api", "getPMDataError")
+                    logger.error("getPMData API 재호출 후 처리 오류 발생")
+                    logger.error(e)
                     return "ERROR"
