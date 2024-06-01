@@ -13,6 +13,9 @@ const $location = document.querySelector("#location");
 const $ncstPrecipitation = document.querySelector("#ncstPrecipitation");
 const $ncstHumidity = document.querySelector("#ncstHumidity");
 // 미세먼지
+const $pmDataSrcInfoIcon = document.querySelector("#pmDataSrcInfoIcon");
+const $pmDataSrcInfo = document.querySelector("#pmDataSrcInfo");
+const $pmDataSrcInfoMsg = document.querySelector("#pmDataSrcInfoMsg");
 const $station = document.querySelector("#station");
 const $pm25 = document.querySelector("#pm25");
 const $pm25Grade = document.querySelector("#pm25Grade");
@@ -127,6 +130,23 @@ function showFailure(msg1, msg2) {
   $failureScreen.style.display = "block";
   document.querySelector("#failureMsg1").innerText = msg1
   document.querySelector("#failureMsg2").innerText = msg2
+}
+
+/**
+ * 미세먼지 데이터 출처 및 오류 가능성 메시지 출력 함수
+ */
+function showPMDataSrcInfo() {
+  $pmDataSrcInfoIcon.addEventListener("click", function() {
+    $pmDataSrcInfo.style.display = "block";
+    setTimeout(function () {
+      $pmDataSrcInfoMsg.style.opacity = 0;
+      $pmDataSrcInfoMsg.style.transition = "opacity 1s ease"
+    }, 2000);
+    setTimeout(function () {
+      $pmDataSrcInfo.style.display = "none";
+      $pmDataSrcInfoMsg.style.opacity = 0.9;
+    }, 2600);
+  });
 }
 
 /**

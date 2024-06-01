@@ -57,6 +57,7 @@ function getPositionError(e) {
  */
 function drawPopup(data) {
   hideLoading();
+  showPMDataSrcInfo();
   setBG(data);
   drawPosition(data);
   drawNcst(data);
