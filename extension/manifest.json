@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Micro-Weather",
   "description": "브라우저에서 팝업으로 편하게 날씨를 확인해 보세요!",
-  "version": "1.1",
+  "version": "1.2",
   "icons": {
     "16": "src/images/icon/icon-16.png",
     "32": "src/images/icon/icon-32.png",

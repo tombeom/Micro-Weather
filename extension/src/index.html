@@ -7,7 +7,7 @@
     <title>Micro-Weather</title>
     <link href="./output.css" rel="stylesheet" />
   </head>
-  <body class="w-[800px] h-[400px] font-ibm text-white bg-[#1f242e]" id="popup">
+  <body class="w-[800px] h-[420px] font-ibm text-white bg-[#1f242e]" id="popup">
     <h1 class="sr-only">Micro-Weather</h1>
     <main>
       <!-- Display Nowcast Weather Icon, Temperature -->
@@ -41,6 +41,9 @@
       <section>
         <h2 class="sr-only">현재 미세먼지 정보</h2>
         <article class="flex justify-center items-center mt-5">
+          <svg fill="none" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2" id="pmDataSrcInfoIcon">
+            <path d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+          </svg>
           <h3 class="pr-6 text-lg" id="station">-</h3> <!-- PM Station -->
           <h2 class="p-2 mr-2 border-2 rounded-full font-bold" id="pm25">-</h2>
           <div>
@@ -51,6 +54,12 @@
           <div>
             <h3 class="font-pretendard">미세먼지</h3>
             <h3 class="font-bold" id="pm10Grade">-</h3> <!-- PM-10 -->
+          </div>
+        </article>
+        <article class="hidden fixed inset-1 z-50" id="pmDataSrcInfo">
+          <div class="flex flex-col mx-52 my-44 p-5 drop-shadow-lg rounded-md bg-white opacity-90 text-[#212631] w-96" id="pmDataSrcInfoMsg">
+            <p>데이터는 실시간 관측된 자료이며 측정소 현지 사정이나 데이터 수신상태에 따라 미수신 될 수 있습니다.</p>
+            <p>출처 : 한국환경공단</p>
           </div>
         </article>
       </section>
@@ -65,7 +74,7 @@
     </section>
     <!-- // Display Forecast Weather Data -->
     <!-- Loading Screen -->
-    <section class="w-[800px] h-[420px] fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="loadingScreen">
+    <section class="w-[800px] h-[450px] font-pretendard fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="loadingScreen">
       <div class="grid justify-items-center mt-32">
         <h2 class="text-7xl animate-[bounce_3s_infinite]">🌞</h2>
         <h3 class="mt-4 text-4xl animate-pulse">날씨를 기다리고 있어요💦</h3>
@@ -73,7 +82,7 @@
     </section>
     <!-- // Loading Screen -->
     <!-- Failure Screen -->
-    <section class="hidden w-[800px] h-[420px] fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="failureScreen">
+    <section class="hidden w-[800px] font-pretendard h-[450px] fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="failureScreen">
       <div class="grid justify-items-center mt-28">
         <h3 class="mt-4 text-4xl">날씨를 불러오는데 실패했어요😥</h3>
         <p class="mt-20 text-xl" id="failureMsg1"></p>
