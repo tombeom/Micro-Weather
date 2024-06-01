@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'IBM_Plex_Sans_KR';
+    src: url('./fonts/IBMPlexSansKR-Regular.ttf');
+  }
+  @font-face {
+    font-family: 'Pretendard';
+    src: url('./fonts/PretendardVariable.woff2') format('woff2');
+  }
+}

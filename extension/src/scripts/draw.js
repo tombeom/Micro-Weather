@@ -178,7 +178,7 @@ function drawFcst(data) {
               <img class="w-6 mr-2" src="${weatherImg.src}" alt="${weatherImg.alt}" />
               <p>${data.forecast.T1H[i]}°</p>
             </div>
-            <div class="flex mb-2">
+            <div class="flex mb-2 font-pretendard">
               <img class="w-6 mr-2" src="${umbrellaImg.src}" alt="${umbrellaImg.alt}" />
               <p>${rn1Str}</p>
             </div>
