@@ -1,8 +1,8 @@
+import os
 import response
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 
 load_dotenv()
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -27,4 +27,4 @@ def handle_other_methods(path: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=443, ssl_keyfile=os.getenv("sslKeyFile"), ssl_certfile=os.getenv("sslCertFile"))

@@ -5,7 +5,7 @@
  * @param {Object} position 
  */
 async function getData(position) {
-  const url = "http://tombeom.com/";
+  const url = "https://tombeom.com/";
   const params = {
     latitude: position.coords.latitude,
     longitude: position.coords.longitude,
