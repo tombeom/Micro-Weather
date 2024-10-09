@@ -1,5 +1,4 @@
 import ephem
-import httpx
 import asyncio
 from fastapi import HTTPException
 from pyproj import Proj, Transformer
@@ -17,25 +16,21 @@ class WeatherService:
         """
         self.longitude: float = longitude
         self.latitude: float = latitude
-
         self._is_valid_coordinates(latitude=self.latitude, longitude=self.longitude)
         self.grid_coord: dict = self._get_grid_coordinates(latitude=self.latitude, longitude=self.longitude)
-        self.utm_coord: dict = self._get_utm_coordinates(latitude=self.latitude, longitude=self.longitude)
 
     async def get_weather(self) -> WeatherModel:
         """
         클래스 외부 실행용 최종 데이터 반환 메소드
         :return: WeatherModel
         """
-        near_stations: list[str] = await self._set_near_stations(latitude=self.latitude, longitude=self.longitude)
-        async with httpx.AsyncClient() as client:
-            address, is_sunrise, nowcast_model, forecast_model, particulate_matter = await asyncio.gather(
-                self._get_address(latitude=self.latitude, longitude=self.longitude, client=client),
-                self._is_sunrise(latitude=self.latitude, longitude=self.longitude),
-                self._get_nowcast(grid_x=self.grid_coord["grid_x"], grid_y=self.grid_coord["grid_y"]),
-                self._get_forecast(grid_x=self.grid_coord["grid_x"], grid_y=self.grid_coord["grid_y"]),
-                self._get_particulate_matter(station_list=near_stations)
-            )
+        address, is_sunrise, nowcast_model, forecast_model, particulate_matter = await asyncio.gather(
+            self._get_address(latitude=self.latitude, longitude=self.longitude),
+            self._is_sunrise(latitude=self.latitude, longitude=self.longitude),
+            self._get_nowcast(grid_x=self.grid_coord["grid_x"], grid_y=self.grid_coord["grid_y"]),
+            self._get_forecast(grid_x=self.grid_coord["grid_x"], grid_y=self.grid_coord["grid_y"]),
+            self._get_particulate_matter(latitude=self.latitude, longitude=self.longitude)
+        )
         return WeatherModel(
             address=address,
             is_sunrise=is_sunrise,
@@ -43,6 +38,28 @@ class WeatherService:
             forecast=forecast_model,
             particulate_matter=particulate_matter
         )
+
+    @staticmethod
+    async def _get_address(latitude: float, longitude: float) -> str:
+        """
+        위경도 값으로 위치한 읍면동 위치를 확인하는 메소드
+        :param latitude: float
+        :param longitude: float
+        :return: str
+        """
+        async with Database() as db:
+            address: dict = await db.location.find_one({
+                "geometry": {
+                    "$geoIntersects": {
+                        "$geometry": {
+                            "type": "Point",
+                            "coordinates":
+                                [longitude, latitude],
+                        }
+                    }
+                }
+            })
+        return address["location"]
 
     @staticmethod
     def _is_valid_coordinates(latitude: float, longitude: float) -> None:
@@ -81,19 +98,11 @@ class WeatherService:
         return {"grid_x": grid_x, "grid_y": grid_y}
 
     @staticmethod
-    def _get_utm_coordinates(latitude: float, longitude: float) -> dict:
-        """
-        위경도를 EPSG:5178(UTM-K Bessel) 좌표계 기반의 좌표로 변환하는 메소드
-        :return: dict
-        """
-        utm_x, utm_y = Transformer.from_crs("EPSG:4326", "EPSG:5178", always_xy=True).transform(longitude, latitude)
-
-        return {"utm_x": utm_x, "utm_y": utm_y}
-
-    @staticmethod
     async def _is_sunrise(latitude: float, longitude: float) -> bool:
         """
         위경도 값으로 일출 여부를 확인하는 메소드
+        :param latitude: float
+        :param longitude: float
         :return: bool
         """
         current_time: datetime = datetime.now()
@@ -116,6 +125,8 @@ class WeatherService:
     async def _set_near_stations(latitude: float, longitude: float) -> list[str]:
         """
         근접 측정소 조회 메소드
+        :param latitude: float
+        :param longitude: float
         :return: list[str]
         """
         async with Database() as db:
@@ -134,32 +145,6 @@ class WeatherService:
         return near_station_list
 
     @staticmethod
-    async def _get_address(latitude: float, longitude: float, client: httpx.AsyncClient) -> str | None:
-        """
-        Nominatim API를 사용해 위경도 값을 OpenStreetMap의 주소로 역지오코딩하는 메소드
-        :param client: httpx.AsyncClient
-        :return: str | None
-        """
-        url: str = "https://nominatim.openstreetmap.org/reverse"
-        params: dict = {
-            "format": "json",
-            "lat": latitude,
-            "lon": longitude,
-            "zoom": "18"
-        }
-        try:
-            response_data: dict = (await client.get(url=url, params=params, timeout=10.0)).json()
-        except Exception as e:
-            return None
-        else:
-            address = response_data["address"]
-
-            city_or_county = address.get("city") or address.get("county")
-            road_or_village = address.get("road") or address.get("village")
-
-            return f"{city_or_county} {road_or_village}"
-
-    @staticmethod
     async def _get_nowcast(grid_x: int, grid_y: int) -> NowcastModel:
         """
         초단기실황 데이터 조회 메소드
@@ -171,10 +156,10 @@ class WeatherService:
             nowcast_data: dict = await db.nowcast.find_one({"nx": grid_x, "ny": grid_y}, sort=[("tm", -1)])
         return NowcastModel(
             datetime=nowcast_data["tm"],
-            PTY=nowcast_data["PTY"],
-            REH=nowcast_data["REH"],
-            RN1=nowcast_data["RN1"],
-            T1H=nowcast_data["T1H"]
+            PTY=nowcast_data.get("PTY", 0),
+            REH=nowcast_data.get("REH", 99),
+            RN1=nowcast_data.get("RN1", 0),
+            T1H=nowcast_data.get("T1H", 99)
         )
 
     @staticmethod
@@ -190,25 +175,38 @@ class WeatherService:
         forecast_model_list: list[ForecastModel] = [
             ForecastModel(
                 datetime=data["effective_time"],
-                LGT=data["LGT"],
-                PTY=data["PTY"],
+                LGT=data.get("LGT", 0),
+                PTY=data.get("PTY", 0),
                 RN1=f'{data["RN1"]} mm' if data["RN1"] != 0 else "강수없음",
-                SKY=data["SKY"],
-                T1H=data["T1H"]
+                SKY=data.get("SKY", 1),
+                T1H=data.get("T1H", 99)
             )
             for data in forecast_data["items"]
         ]
         return forecast_model_list
 
     @staticmethod
-    async def _get_particulate_matter(station_list: list) -> ParticulateMatterModel:
+    async def _get_particulate_matter(latitude: float, longitude: float) -> ParticulateMatterModel:
         """
         미세먼지 데이터 조회 메소드
-        :param station_list: list
+        :param latitude: float
+        :param longitude: float
         :return: ParticulateMatterModel
         """
         async with Database() as db:
-            particulate_matter_list: list[dict] = await db.pm_data.find({"station_name": {"$in": station_list}}, sort=[("tm", -1)]).to_list(length=None)
+            near_stations: list[dict] = await db.pm_station.find({
+                "geometry": {
+                    "$near": {
+                        "$geometry": {
+                            "type": "Point",
+                            "coordinates": [longitude, latitude]
+                        },
+                    }
+                }
+            }).to_list(length=3)
+            near_station_list: list[str] = [station["station_name"] for station in near_stations]
+            particulate_matter_list: list[dict] = await db.pm_data.find({"station_name": {"$in": near_station_list}}, sort=[("tm", -1)]).to_list(length=None)
+
         for particulate_matter in particulate_matter_list:
             if (particulate_matter.get("pm10Value") is not None) or (particulate_matter.get("pm25Value") is not None):
                 return ParticulateMatterModel(
@@ -219,12 +217,12 @@ class WeatherService:
                     pm25Value=particulate_matter.get("pm25Value"),
                     pm25Grade=particulate_matter.get("pm25Grade1h")
                 )
-            else:
-                return ParticulateMatterModel(
-                    datetime=particulate_matter.get("dataTime"),
-                    station_name=particulate_matter.get("station_name"),
-                    pm10Value=particulate_matter.get("pm10Value"),
-                    pm10Grade=particulate_matter.get("pm10Grade1h"),
-                    pm25Value=particulate_matter.get("pm25Value"),
-                    pm25Grade=particulate_matter.get("pm25Grade1h")
-                )
+
+        return ParticulateMatterModel(
+            datetime=particulate_matter_list[0].get("dataTime"),
+            station_name=particulate_matter_list[0].get("station_name"),
+            pm10Value=particulate_matter_list[0].get("pm10Value"),
+            pm10Grade=particulate_matter_list[0].get("pm10Grade1h"),
+            pm25Value=particulate_matter_list[0].get("pm25Value"),
+            pm25Grade=particulate_matter_list[0].get("pm25Grade1h")
+        )

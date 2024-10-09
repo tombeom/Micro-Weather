@@ -25,7 +25,7 @@ class ParticulateMatterModel(BaseModel):
     pm25Grade: int | None
 
 class WeatherModel(BaseModel):
-    address: str | None = None
+    address: str
     is_sunrise: bool
     nowcast: NowcastModel
     forecast: list[ForecastModel]

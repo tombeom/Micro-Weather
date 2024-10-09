@@ -12,6 +12,7 @@ class Database:
         self.forecast: AsyncIOMotorCollection = self.database["forecast"]
         self.pm_station: AsyncIOMotorCollection = self.database["pm_station"]
         self.pm_data: AsyncIOMotorCollection = self.database["pm_data"]
+        self.location: AsyncIOMotorCollection = self.database["location"]
 
     async def __aenter__(self):
         return self
