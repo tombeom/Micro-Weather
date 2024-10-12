@@ -449,13 +449,13 @@ video {
 @font-face {
   font-family: 'IBM_Plex_Sans_KR';
 
-  src: url('./fonts/IBMPlexSansKR-Regular.ttf');
+  src: url('./fonts/subset-IBMPlexSansKR-Regular.woff2') format('woff2');
 }
 
 @font-face {
   font-family: 'Pretendard';
 
-  src: url('./fonts/PretendardVariable.woff2') format('woff2');
+  src: url('./fonts/subset-PretendardVariable-Regular.woff2') format('woff2');
 }
 
 *, ::before, ::after {
@@ -633,6 +633,10 @@ video {
   margin-right: 0.5rem;
 }
 
+.mr-8 {
+  margin-right: 2rem;
+}
+
 .mt-10 {
   margin-top: 2.5rem;
 }
@@ -647,10 +651,6 @@ video {
 
 .mt-28 {
   margin-top: 7rem;
-}
-
-.mt-32 {
-  margin-top: 8rem;
 }
 
 .mt-4 {
@@ -686,10 +686,6 @@ video {
   height: 420px;
 }
 
-.h-\[440px\] {
-  height: 440px;
-}
-
 .h-\[450px\] {
   height: 450px;
 }
@@ -712,32 +708,6 @@ video {
 
 .w-\[800px\] {
   width: 800px;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(-25%);
-    animation-timing-function: cubic-bezier(0.8,0,1,1);
-  }
-
-  50% {
-    transform: none;
-    animation-timing-function: cubic-bezier(0,0,0.2,1);
-  }
-}
-
-.animate-\[bounce_3s_infinite\] {
-  animation: bounce 3s infinite;
-}
-
-@keyframes pulse {
-  50% {
-    opacity: .5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .grid-cols-6 {

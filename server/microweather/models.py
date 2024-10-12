@@ -12,7 +12,7 @@ class ForecastModel(BaseModel):
     datetime: datetime
     LGT: float
     PTY: float
-    RN1: str
+    RN1: float
     SKY: float
     T1H: float
 

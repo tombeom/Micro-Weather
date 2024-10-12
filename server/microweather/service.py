@@ -156,10 +156,10 @@ class WeatherService:
             nowcast_data: dict = await db.nowcast.find_one({"nx": grid_x, "ny": grid_y}, sort=[("tm", -1)])
         return NowcastModel(
             datetime=nowcast_data["tm"],
-            PTY=nowcast_data.get("PTY", 0),
-            REH=nowcast_data.get("REH", 99),
-            RN1=nowcast_data.get("RN1", 0),
-            T1H=nowcast_data.get("T1H", 99)
+            PTY=nowcast_data["PTY"] if nowcast_data["PTY"] is not None else 0,
+            REH=nowcast_data["REH"] if nowcast_data["REH"] is not None else 99,
+            RN1=nowcast_data["RN1"] if nowcast_data["RN1"] is not None else 0,
+            T1H=nowcast_data["T1H"] if nowcast_data["T1H"] is not None else 99
         )
 
     @staticmethod
@@ -172,14 +172,15 @@ class WeatherService:
         """
         async with Database() as db:
             forecast_data: dict = await db.forecast.find_one({"nx": grid_x, "ny": grid_y}, sort=[("tm", -1)])
+
         forecast_model_list: list[ForecastModel] = [
             ForecastModel(
                 datetime=data["effective_time"],
-                LGT=data.get("LGT", 0),
-                PTY=data.get("PTY", 0),
-                RN1=f'{data["RN1"]} mm' if data["RN1"] != 0 else "강수없음",
-                SKY=data.get("SKY", 1),
-                T1H=data.get("T1H", 99)
+                LGT=data["LGT"] if data["LGT"] is not None else 0,
+                PTY=data["PTY"] if data["PTY"] is not None else 0,
+                RN1=data["RN1"] if data["RN1"] is not None else 99,
+                SKY=data["SKY"] if data["SKY"] is not None else 1,
+                T1H=data["T1H"] if data["T1H"] is not None else 99
             )
             for data in forecast_data["items"]
         ]
