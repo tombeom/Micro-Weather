@@ -14,7 +14,7 @@
       <section>
         <h2 class="sr-only">현재 온도</h2>
         <article class="flex justify-center items-center mt-5 mb-5 gap-4">
-          <img class="w-24" src="images/loading.png" alt="불러오는 중" id="ncstImg" /> <!-- Weather Image -->
+          <img class="w-24" src="images/loading.avif" alt="불러오는 중" id="ncstImg" /> <!-- Weather Image -->
           <h3 class="text-7xl font-bold" id="ncstTemp">-°</h3> <!-- Temperature -->
         </article>
       </section>
@@ -26,11 +26,11 @@
           <h3 class="text-xl font-bold" id="location">-</h3> <!-- Location -->
           <div class="text-lg ml-4">
             <div class="flex mb-3 font-pretendard">
-              <img class="w-7 mr-2" src="images/loading.png" alt="불러오는 중" id="ncstPrecipitationImg"/> <!-- Precipitation Image -->
+              <img class="w-7 mr-2" src="images/loading.avif" alt="불러오는 중" id="ncstPrecipitationImg"/> <!-- Precipitation Image -->
               <h3 id="ncstPrecipitation">강수량 - mm</h3> <!-- Precipitation -->
             </div>
             <div class="flex">
-              <img class="w-7 mr-2" src="images/humidity.png" alt="습도" /> <!-- Humidity Image -->
+              <img class="w-7 mr-2" src="images/humidity.avif" alt="습도" /> <!-- Humidity Image -->
               <h3 id="ncstHumidity">습도 -%</h3> <!-- Humidity -->
             </div>
           </div>
@@ -73,14 +73,6 @@
       </ol>
     </section>
     <!-- // Display Forecast Weather Data -->
-    <!-- Loading Screen -->
-    <section class="w-[800px] h-[450px] font-pretendard fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="loadingScreen">
-      <div class="grid justify-items-center mt-32">
-        <h2 class="text-7xl animate-[bounce_3s_infinite]">🌞</h2>
-        <h3 class="mt-4 text-4xl animate-pulse">날씨를 기다리고 있어요💦</h3>
-      </div>
-    </section>
-    <!-- // Loading Screen -->
     <!-- Failure Screen -->
     <section class="hidden w-[800px] h-[450px] font-pretendard fixed inset-0 bg-gradient-to-b from-[#668fe5] to-[#d5b35e] z-50 items-center" id="failureScreen">
       <div class="grid justify-items-center mt-28">

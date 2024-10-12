@@ -5,23 +5,39 @@
  * @param {Object} position 
  */
 async function getData(position) {
-  const url = "https://tombeom.com/";
+  const url = "https://api.tombeom.com/microweather";
   const params = {
     latitude: position.coords.latitude,
     longitude: position.coords.longitude,
   };
   const requestUrl = `${url}?${new URLSearchParams(params).toString()}`;
-  const c = await fetch(requestUrl)
-    .then((res) => res.json())
-    .then((res) => {
-      drawPopup(res);
-    })
-    .catch((e) => {
+  try {
+    const response = await fetch(requestUrl);
+    if (!response.ok) {
+      const error = new Error(`Error: ${response.status} ${response.statusText}`);
+      error.status = response.status;
+      throw error;
+    }
+    const data = await response.json();
+    drawPopup(data);
+  } catch (error) {
+    if (error.status === 404) {
       showFailure(
-        "서버와 통신에 문제가 있어요...", 
-        "팝업을 다시 열어 시도해 보세요.",
+        "대한민국(한반도) 내 위치만 지원하는 서비스입니다.",
+        ""
       );
-    });
+    } else if (error.status === 500){
+      showFailure(
+        "서버 내부에서 처리 중에 에러가 발생했어요...",
+        "얼른 돌아올게요!"
+      );
+    } else {
+      showFailure(
+        "서버와 통신에 문제가 있어요...",
+        "잠시 후 팝업을 다시 열어 시도해 보세요."
+      );
+    }
+  }  
 }
 
 /**
@@ -56,7 +72,6 @@ function getPositionError(e) {
  * @param {Object} pmGradeData 
  */
 function drawPopup(data) {
-  hideLoading();
   showPMDataSrcInfo();
   setBG(data);
   drawPosition(data);

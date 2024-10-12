@@ -3,7 +3,6 @@
 // 데이터 출력 위치를 지정하기 위한 QuerySelector
 // 기타
 const $popup = document.querySelector("#popup");
-const $loadingScreen = document.querySelector("#loadingScreen");
 const $failureScreen = document.querySelector("#failureScreen");
 // 초단기실황
 const $ncstImg = document.querySelector("#ncstImg");
@@ -28,67 +27,67 @@ const $fcstData = document.querySelector("#fcstData");
 const imgData = [
   {
     idx: "0",
-    src: "images/clear.png",
+    src: "images/clear.avif",
     alt: "맑음",
     id: "clear",
   },
   {
     idx: "1",
-    src: "images/mostlyCloudy.png",
+    src: "images/mostlyCloudy.avif",
     alt: "구름많음",
     id: "mostlyCloudy",
   },
   {
     idx: "2",
-    src: "images/cloudy.png",
+    src: "images/cloudy.avif",
     alt: "흐림",
     id: "cloudy",
   },
   {
     idx: "3",
-    src: "images/rain.png",
+    src: "images/rain.avif",
     alt: "비 혹은 비/눈",
     id: "rain",
   },
   {
     idx: "4",
-    src: "images/snow.png",
+    src: "images/snow.avif",
     alt: "눈",
     id: "snow",
   },
   {
     idx: "5",
-    src: "images/shower.png",
+    src: "images/shower.avif",
     alt: "빗방울 혹은 빗방울눈날림 (강수량 0.1mm 미만)",
     id: "shower",
   },
   {
     idx: "6",
-    src: "images/snowDrifting.png",
+    src: "images/snowDrifting.avif",
     alt: "눈날림 (적설량 0.1cm 미만)",
     id: "snowDrifting",
   },
   {
     idx: "7",
-    src: "images/lightning.png",
+    src: "images/lightning.avif",
     alt: "낙뢰",
     id: "lightning",
   },
   {
     idx: "8",
-    src: "images/thunderStorm.png",
+    src: "images/thunderStorm.avif",
     alt: "뇌우",
     id: "thunderStorm",
   },
   {
     idx: "9",
-    src: "images/rainUmbrella.png",
+    src: "images/rainUmbrella.avif",
     alt: "비 오는 우산",
     id: "rainUmbrella",
   },
   {
     idx: "10",
-    src: "images/foldedUmbrella.png",
+    src: "images/foldedUmbrella.avif",
     alt: "접힌 우산",
     id: "foldedUmbrella",
   },
@@ -99,10 +98,10 @@ const imgData = [
  * @param {Object} data 
  */
 function setBG(data) {
-  if (data.sunRiseSetData.sunRiseSetData === "sunrise") {
+  if (data.is_sunrise === true) {
     // 이외에는 밝은 배경색 설정 (일출 시간 이후, 일몰 시간 전)
     $popup.style.backgroundColor = "#5490e5";
-  } else if (data.sunRiseSetData.sunRiseSetData === "sunset") {
+  } else {
     // 일몰 시간 이후, 일출 시간 전에는 어두운 배경색 설정
     $popup.style.backgroundColor = "#1f242e";
   }
@@ -113,14 +112,7 @@ function setBG(data) {
  * @param {Object} data 
  */
 function drawPosition(data) {
-  $location.innerText = `${data.address.city} ${data.address.quarter}`;
-}
-
-/**
- * API 호출이 성공했을 때 로딩 화면을 숨기는 함수
- */
-function hideLoading() {
-  $loadingScreen.style.display = "none";
+  $location.innerText = `${data.address}`;
 }
 
 /**
@@ -155,7 +147,13 @@ function showPMDataSrcInfo() {
  */
 function drawNcst(data) {
   // 날씨에 맞는 이미지를 불러와서 적용
-  const weatherImg = getWeatherImage(data.forecast.LGT[0], data.nowcast.PTY, data.forecast.SKY[0], data.nowcast.RN1);
+  const weatherImg = getWeatherImage(
+    data.forecast[0].LGT,
+    data.nowcast.PTY,
+    data.forecast[0].SKY,
+    data.nowcast.RN1
+  );
+
   $ncstImg.src = weatherImg.src;
   $ncstImg.alt = weatherImg.alt;
 
@@ -177,18 +175,14 @@ function drawNcst(data) {
 function drawFcst(data) {
 
   // 총 6개의 초단기예보 데이터를 출력
-  for (let i = 0; i < data.forecast.fcstTime.length; i++) {
-    const weatherImg = getWeatherImage(data.forecast.LGT[i], data.forecast.PTY[i], data.forecast.SKY[i], data.forecast.RN1[i]);
-    const umbrellaImg = getUmbrellaImg(data.forecast.RN1[i]);
-    let rn1Str = "";
-    const rn1 = data.forecast.RN1[i];
-
-    //초단기예보과 초단기실황의 강수 값이 달라 수정
-    if (rn1 === "0") {
-      rn1Str = `강수 없음`;
-    } else {
-      rn1Str = `${rn1}`;
-    }
+  for (let i = 0; i < data.forecast.length; i++) {
+    const weatherImg = getWeatherImage(
+      data.forecast[i].LGT,
+      data.forecast[i].PTY,
+      data.forecast[i].SKY,
+      data.forecast[i].RN1
+    );
+    const umbrellaImg = getUmbrellaImg(data.forecast[i].RN1);
     
     // 초단기예보 출력을 위한 HTML
     const fcstDataForm = `
@@ -196,13 +190,13 @@ function drawFcst(data) {
           <div class="pl-5">
             <div class="flex mb-2">
               <img class="w-6 mr-2" src="${weatherImg.src}" alt="${weatherImg.alt}" />
-              <p>${data.forecast.T1H[i]}°</p>
+              <p>${data.forecast[i].T1H}°</p>
             </div>
             <div class="flex mb-2 font-pretendard">
               <img class="w-6 mr-2" src="${umbrellaImg.src}" alt="${umbrellaImg.alt}" />
-              <p>${rn1Str}</p>
+              <p>${data.forecast[i].RN1 + " mm"}</p>
             </div>
-            <h3 class="font-bold text-center">${data.forecast.fcstTime[i].slice(0, 2)}:00</h3>
+            <h3 class="font-bold text-center mr-8">${data.forecast[i].datetime.slice(11, 13)}:00</h3>
           </div>
         </li>
       `;
@@ -219,7 +213,7 @@ function drawFcst(data) {
 function drawPM(data) {
   const pm = checkPM(data);
 
-  $station.innerText = `${data.pmData.stationName} 측정소`;
+  $station.innerText = `${data.particulate_matter.station_name} 측정소`;
   $pm25.innerText = `${pm.pm25Value}`;
   $pm25.style.backgroundColor = setPMBackgroundColor(pm.pm25Grade);
   $pm25Grade.innerText = `${pm.pm25Grade}`;
@@ -242,22 +236,28 @@ function checkPM(data) {
   };
 
   // 미세먼지 값이 있다면 checkPMGrade() 실행해서 미세먼지 등급 저장. 그렇지 않다면 "데이터 없음"을 return
-  if (data.pmData.pm10Value != "-") {
-    returnData.pm10Value = data.pmData.pm10Value;
-    returnData.pm10Grade = checkPMGrade("pm10", data.pmData.pm10Value);
+  if (data.particulate_matter.pm10Value != null) {
+    returnData.pm10Value = data.particulate_matter.pm10Value;
+    returnData.pm10Grade = checkPMGrade(
+      "pm10",
+      data.particulate_matter.pm10Value
+    );
   } else {
     returnData.pm10Value = "-";
     returnData.pm10Grade = "데이터 없음";
   }
 
-  if (data.pmData.pm25Value != "-") {
-    returnData.pm25Value = data.pmData.pm25Value;
-    returnData.pm25Grade = checkPMGrade("pm25", data.pmData.pm25Value);
+  if (data.particulate_matter.pm25Value != null) {
+    returnData.pm25Value = data.particulate_matter.pm25Value;
+    returnData.pm25Grade = checkPMGrade(
+      "pm25",
+      data.particulate_matter.pm25Value
+    );
   } else {
     returnData.pm25Value = "-";
     returnData.pm25Grade = "데이터 없음";
   }
-  return returnData
+  return returnData;
 }
 
 /**
@@ -309,7 +309,7 @@ function setPMBackgroundColor (pmGradeData) {
   } else if (pmGradeData === "매우 나쁨") {
     return "#ea665c";
   } else {
-    return "";
+    return "#717b84";
   }
 }
 
@@ -321,45 +321,45 @@ function setPMBackgroundColor (pmGradeData) {
  * @param {String} rn1
  */
 function getWeatherImage(lightning, precipitationType, sky, rn1) {
-  if (lightning === "0") {
+  if (lightning === 0) {
     // 번개 칠 때
-    if (precipitationType === "0") {
+    if (precipitationType === 0) {
       // 비가 안올 때
-      if (rn1 != "강수없음" && rn1 > 0) {
-        // 강수형태 값이 0이지만 강수량이 있을 때 - shower.png
+      if (rn1 > 0) {
+        // 강수형태 값이 0이지만 강수량이 있을 때 - shower.avif
         return imgData[5];
       } else {
-        if (sky === "1") {
-          // 맑음 (구름이 0~5할의 상태) - clear.png
+        if (sky === 1) {
+          // 맑음 (구름이 0~5할의 상태) - clear.avif
           return imgData[0];
-        } else if (sky === "3") {
-          // 구름많음 (구름이 6~8할의 상태) - mostlyCloudy.png
+        } else if (sky === 3) {
+          // 구름많음 (구름이 6~8할의 상태) - mostlyCloudy.avif
           return imgData[1];
-        } else if (sky === "4") {
-          // 흐림 (구름이 9~10할의 상태) - cloudy.png
+        } else if (sky === 4) {
+          // 흐림 (구름이 9~10할의 상태) - cloudy.avif
           return imgData[2];
         }
       }
-    } else if (precipitationType === "1" || precipitationType === "2") {
-      // 비 or 비/눈 - rain.png
+    } else if (precipitationType === 1 || precipitationType === 2) {
+      // 비 or 비/눈 - rain.avif
       return imgData[3];
-    } else if (precipitationType === "3") {
-      // 눈 - snow.png
+    } else if (precipitationType === 3) {
+      // 눈 - snow.avif
       return imgData[4];
-    } else if (precipitationType === "5" || precipitationType === "6") {
-      // 빗방울 or 빗방울눈날림 (비 0.1mm 미만) - shower.png
+    } else if (precipitationType === 5 || precipitationType === 6) {
+      // 빗방울 or 빗방울눈날림 (비 0.1mm 미만) - shower.avif
       return imgData[5];
-    } else if (precipitationType === "7") {
-      // 눈날림 (눈 0.1cm 미만) - snowDrifting.png
+    } else if (precipitationType === 7) {
+      // 눈날림 (눈 0.1cm 미만) - snowDrifting.avif
       return imgData[6];
     }
   } else if (lightning < 0) {
     // 번개 안칠 때
-    if (rn1 != "강수없음" || "0") {
-      // 번개 치는데 비가 안올 때 - lightning.png
+    if (rn1 != 0) {
+      // 번개 치는데 비가 안올 때 - lightning.avif
       return imgData[7];
     } else {
-      // 번개 치면서 비도 올 때 - thunderStorm.png
+      // 번개 치면서 비도 올 때 - thunderStorm.avif
       return imgData[8];
     }
   }
@@ -370,10 +370,10 @@ function getWeatherImage(lightning, precipitationType, sky, rn1) {
  * @param {String} rn1 
  */
 function getUmbrellaImg(rn1) {
-  if (rn1 != "강수없음" && rn1 != "0") {
-    return imgData[9]; // 비 오는 우산 - images/rainUmbrella.png
+  if (rn1 != 0) {
+    return imgData[9]; // 비 오는 우산 - images/rainUmbrella.avif
   } else {
-    return imgData[10]; // 접힌 우산 - images/foldedUmbrella.png
+    return imgData[10]; // 접힌 우산 - images/foldedUmbrella.avif
   }
 }
 
